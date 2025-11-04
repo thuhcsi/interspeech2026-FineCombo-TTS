@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FineCombo-TTS: Collaborative and Precise Controllable Speech Synthesis Using Text Descriptions and Reference Speech</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --max-width: 740px;
+      --bg-page: #fafbfc;
+      --bg-content: #fff;
+      --text-primary: #24292e;
+      --text-secondary: #6a737d;
+      --border: #e1e4e8;
+      --link: #0366d6;
+    }
+  
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
+                   "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.6;
+    }
+  
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      background-color: var(--bg-content);
+    }
+  
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 600;
+      margin-bottom: .5rem;
+    }
+  
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+  
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .3rem;
+    }
+  
+    p {
+      margin-bottom: 1rem;
+    }
+  
+    .toc {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 0;
+      margin-bottom: 2rem;
+    }
+  
+    .toc li {
+      margin: .4rem 0;
+    }
+  
+    .toc a {
+      color: var(--link);
+      text-decoration: none;
+    }
+  
+    .toc a:hover {
+      text-decoration: underline;
+    }
+  
+    /* —— 表格基础样式 —— */
+    table {
+      table-layout: fixed;    /* 固定列宽，按下面的百分比分配 */
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+  
+    thead tr th {
+      text-align: center;
+      padding: .5rem 0;
+      border-bottom: 2px solid var(--border);
+      vertical-align: middle;
+    }
+  
+    tbody tr td {
+      text-align: center;
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      vertical-align: middle;
+    }
+  
+    /* 长词/句自动换行 */
+    thead tr th,
+    tbody tr td {
+      word-break: break-word;
+      white-space: normal;
+    }
+  
+    /* —— 各列宽度 —— */
+    th:nth-child(1),
+    td:nth-child(1) { width: 20%; min-width: 160px; }  /* Voice Print */
+    th:nth-child(2),
+    td:nth-child(2) { width: 30%; }                      /* Speaking Content */
+    th:nth-child(3),
+    td:nth-child(3) { width: 30%; }                      /* Instruction */
+    th:nth-child(4),
+    td:nth-child(4) { width: 20%; min-width: 140px; }    /* Generated Speech */
+  
+    /* —— 音频播放器样式 —— */
+    /* 默认情况下所有 audio 保持 inline-block，并可随列宽缩放 */
+    audio {
+      display: inline-block;
+      width: 90%;
+      max-width: 140px;    /* 根据需要调整播放器最大宽度 */
+      vertical-align: middle;
+    }
+  
+    /* 如果你想更精细地控制第一和第四列，也可以单独写 */
+    /* th:nth-child(1) audio,
+       td:nth-child(1) audio,
+       th:nth-child(4) audio,
+       td:nth-child(4) audio {
+         max-width: 140px;
+       } */
+  
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: .875rem;
+      color: var(--text-secondary);
+    }
+  
+    .footer a {
+      color: var(--link);
+      text-decoration: none;
+    }
+  
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  
+
+</head>
+<body>
+  <div class="container">
+    <!-- 标题区 -->
+    <h1>FineCombo-TTS: Collaborative and Precise Controllable Speech Synthesis Using Text Descriptions and Reference Speech</h1>
+    <div class="subtitle">Shuoyi Zhou, Yixuan Zhou, Peiji Yang, Yifan Hu, Yicheng Zhong, Zhisheng Wang, Zhiyong Wu</div>
+  
+    <!-- 摘要 -->
+    <h2 id="abstract">Abstract</h2>
+    <p style="font-size: 1.05rem;">
+      Expressive and controllable text-to-speech (TTS) remains challenging: reference speech-only methods lack flexibility, while text description-only methods impose coarse global control. 
+      Existing joint-control approaches still treat the two modalities separately—reference speech is mostly confined to timbre, and text descriptions crudely overwrite style. 
+      We propose FineCombo-TTS, a unified framework where reference speech provides rich acoustic details, and text descriptions further refine them to achieve precise and flexible control. 
+      FineCombo-TTS extracts holistic acoustic features from reference speech via a Speech Attributes Extractor and employs a Conditional Flow Matching-based Speech Variance Predictor to achieve attribute control without explicit disentanglement. 
+      To support training, we construct FineEdit, a paired dataset in which differences between source and target speech are precisely annotated. 
+      Experiments demonstrate that FineCombo-TTS effectively bridges reference- and description-based control, achieving expressive, precise, and flexible synthesis.
+          </p>
+  
+    <!-- 目录 -->
+    <h2 id="contents">Contents</h2>
+    <ul class="toc">
+      <li><a href="#model-overview">Method</a></li>
+      <li><a href="#Joint Control Demos-Pitch Control">Joint Control Demos-Pitch Control</a></li>
+      <li><a href="#Joint Control Demos-Emotion Control">Joint Control Demos-Emotion Control</a></li>
+      <li><a href="#Joint Control Demos-Timbre Control">Joint Control Demos-Timbre Control</a></li>
+
+      <li><a href="#Description-Only Control Demos">Description-Only Control Demos</a></li>
+
+      <!-- <li><a href="#Joint Control Demos with CFG">Joint Control Demos with CFG</a></li> -->
+    </ul>
+  
+    <!-- 模型概览 -->
+    <h2 id="model-overview">Method</h2>
+    <p>
+      <!-- 简要描述模型 -->
+      FineCombo-TTS is a novel framework that fully integrates reference speech and text descriptions to achieve flexible and precise control in text-to-speech synthesis.
+    </p>
+    <img src="img/model.png" alt="Method Diagram" style="max-width: 100%; margin-top: 1rem;">
+
+    <h2 id="Joint Control Demos-Pitch Control">Joint Control Demos-Pitch Control</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Reference Speech</th>
+          <th>Content</th>
+          <th>Description</th>
+          <th>Generated Speech</th>
+        </tr>
+      </thead>
+      <tbody>
+  
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/prompt/audio-91.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            "I guess I'll get wet," said Toby, ruefully, as he looked up at the lofty seat which he was to occupy.
+          </td>
+          <td>
+            Change the prosody, slow down the speech rate.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/ours/audio-91.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/prompt/audio-21.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            The ideal speaker makes his big words stand out like mountain peaks; his unimportant words are submerged like stream beds.
+          </td>
+          <td>
+            Change the prosody, slow down the speech rate, lower the pitch.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/ours/audio-21.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/prompt/audio-13.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            I feel shooken up dreadful, he's so awful strong; but I'm not very hurt, only I'm sorry, and I've been telling my Captain about it, and asking Him to forgive me.
+          </td>
+          <td>
+            Change the prosody, raise the volume.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/ours/audio-13.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/prompt/audio-14.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            "Horrid, father" whispered Ned, as if he felt that Indians might be listening.
+          </td>
+          <td>
+            Change the prosody, speed up the speech rate, raise the volume.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/ours/audio-14.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/prompt/audio-52.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            They were at breakfast, and everybody in the vicinity turned and stared at their table.
+          </td>
+          <td>
+            Change the prosody, lower the volume, raise the pitch.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/prosody/ours/audio-52.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  
+
+    <h2 id="Joint Control Demos-Emotion Control">Joint Control Demos-Emotion Control</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Reference Speech</th>
+          <th>Content</th>
+          <th>Description</th>
+          <th>Generated Speech</th>
+        </tr>
+      </thead>
+      <tbody>
+  
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/prompt/audio-2.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            No admittance except on party business.
+          </td>
+          <td>
+            Change the style, speak with a sad emotion.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/ours/audio-2.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/prompt/audio-58.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            I'm sure your friends can wait!
+          <td>
+            Change the style, speak with a happy emotion.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/ours/audio-58.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/prompt/audio-76.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            No, I burst the balloon!
+          </td>
+          <td>
+            Change the style, speak with a angry emotion.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/ours/audio-76.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/prompt/audio-103.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            But what about this thing, sticky!
+          </td>
+          <td>
+            Change the style, speak with a surprised emotion.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/ours/audio-103.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/prompt/audio-199.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            I've just shot a stag.
+          </td>
+          <td>
+            Change the style, speak with a angry emotion.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/emotion/ours/audio-199.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+
+    <h2 id="Joint Control Demos-Timbre Control">Joint Control Demos-Timbre Control</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Reference Speech</th>
+          <th>Content</th>
+          <th>Description</th>
+          <th>Generated Speech</th>
+        </tr>
+      </thead>
+      <tbody>
+  
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/prompt/audio-0.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            Chapter ten a warm welcome.
+          </td>
+          <td>
+            Change the timbre to a feminine, clear, slightly muffled, middle-aged, slightly thin, slightly elegant voice.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/ours/audio-0.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/prompt/audio-1.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            Her shoes were like fishes.
+          </td>
+          <td>
+            Change the timbre to a very masculine, deep, very thick, very mature, slightly old, cool voice.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/ours/audio-1.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/prompt/audio-2.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            Mister share man, I move for a division.
+          </td>
+          <td>
+            Change the timbre to a feminine, very young, light, clear, slightly cute voice.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/ours/audio-2.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/prompt/audio-5.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            I do not think it is wise to take her into our confidence.
+          </td>
+          <td>
+            Change the timbre, speak as a feminine,adult-like,tensed,powerful,slightly bright,clear,fluent,intellectual,elegant,slightly sexy,lively,slightly strict,sharp.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/ours/audio-5.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/prompt/audio-6.wav" type="audio/wav">
+            </audio>
+          </td>
+          <td>
+            "My dear uncle," I said, whilst hot tears trickled down my face.
+          </td>
+          <td>
+            Change the timbre, speak as a adult man, slightly weak,bright,soft.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/speaker/ours/audio-6.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  
+
+
+    <h2 id="Description-Only Control Demos">Description-Only Control Demos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Content</th>
+          <th>Description</th>
+          <th>Generated Speech</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            The horse itself, in the foreground of the design, stood motionless and statue like-while farther back, its discomfited rider perished by the dagger of a Metzengerstein.
+          </td>
+          <td>
+            Generate a voice, Speaking slowly, she infused her words with abundant energy.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/description/ours/audio-18.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        <tr>
+          <td>
+            At the unexpected outcry in the rear the Raturans halted, and held a hasty council of war.
+          </td>
+          <td>
+            Generate a voice, With diminished energy, the man speaks rapidly and in a deep pitch.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/description/ours/audio-14.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+  
+        
+        <tr>
+          <td>
+            "Washington ought to send troops and provisions for the forts at once!" replied mr Fulton.
+          </td>
+          <td>
+            Generate a voice, Speaking with fervor, her voice maintains a high pitch.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/description/ours/audio-10.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            When it was fixed on, the boat was launched and the voyage began.
+          </td>
+          <td>
+            Generate a voice, A man's low-pitched voice carries normal energy as he speaks rapidly.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/description/ours/audio-6.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+        <tr>
+
+          <td>
+            It is a lovely story that follows, full of marvel, as how should it not be?
+          </td>
+          <td>
+            Generate a voice, The man maintains a regular pitch while speaking rapidly with an energetic delivery.
+          </td>
+          <td>
+            <audio controls>
+              <source src="wavs/description/ours/audio-4.wav" type="audio/wav">
+            </audio>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  
+
+
+
+</body>
+</html>
