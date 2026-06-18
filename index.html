@@ -36,6 +36,7 @@
       font-size: 2.25rem;
       font-weight: 600;
       margin-bottom: .5rem;
+      text-align: center;
     }
   
     .subtitle {
@@ -44,6 +45,51 @@
       margin-bottom: 2rem;
     }
   
+    /* 作者区域样式 */
+    .authors {
+      text-align: center;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .authors a {
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .authors a:hover {
+      text-decoration: underline;
+    }
+    .affiliations {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* 资源按钮样式 */
+    .links-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+    .link-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      background-color: #24292e;
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    .link-badge:hover {
+      background-color: #586069;
+    }
+
     h2 {
       font-size: 1.5rem;
       font-weight: 600;
@@ -79,7 +125,7 @@
   
     /* —— 表格基础样式 —— */
     table {
-      table-layout: fixed;    /* 固定列宽，按下面的百分比分配 */
+      table-layout: fixed;
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
@@ -97,11 +143,9 @@
       text-align: center;
       padding: .75rem 0;
       border-bottom: 1px solid var(--border);
-      vertical-align: top;
       vertical-align: middle;
     }
   
-    /* 长词/句自动换行 */
     thead tr th,
     tbody tr td {
       word-break: break-word;
@@ -110,30 +154,20 @@
   
     /* —— 各列宽度 —— */
     th:nth-child(1),
-    td:nth-child(1) { width: 20%; min-width: 160px; }  /* Voice Print */
+    td:nth-child(1) { width: 20%; min-width: 160px; }
     th:nth-child(2),
-    td:nth-child(2) { width: 30%; }                      /* Speaking Content */
+    td:nth-child(2) { width: 30%; }
     th:nth-child(3),
-    td:nth-child(3) { width: 30%; }                      /* Instruction */
+    td:nth-child(3) { width: 30%; }
     th:nth-child(4),
-    td:nth-child(4) { width: 20%; min-width: 140px; }    /* Generated Speech */
+    td:nth-child(4) { width: 20%; min-width: 140px; }
   
-    /* —— 音频播放器样式 —— */
-    /* 默认情况下所有 audio 保持 inline-block，并可随列宽缩放 */
     audio {
       display: inline-block;
       width: 90%;
-      max-width: 140px;    /* 根据需要调整播放器最大宽度 */
+      max-width: 140px;
       vertical-align: middle;
     }
-  
-    /* 如果你想更精细地控制第一和第四列，也可以单独写 */
-    /* th:nth-child(1) audio,
-       td:nth-child(1) audio,
-       th:nth-child(4) audio,
-       td:nth-child(4) audio {
-         max-width: 140px;
-       } */
   
     .footer {
       margin-top: 3rem;
@@ -142,47 +176,47 @@
       font-size: .875rem;
       color: var(--text-secondary);
     }
-  
-    .footer a {
-      color: var(--link);
-      text-decoration: none;
-    }
-  
-    .footer a:hover {
-      text-decoration: underline;
-    }
   </style>
-  
-
 </head>
 <body>
   <div class="container">
-    <!-- 标题区 -->
     <h1>FineCombo-TTS: Collaborative and Precise Controllable Speech Synthesis Using Text Descriptions and Reference Speech</h1>
   
-    <!-- 摘要 -->
+    <div class="authors">
+      <strong>Shuoyi Zhou</strong><sup>1</sup>, 
+      <span>Yixuan Zhou</span><sup>1</sup>, 
+      <span>Peiji Yang</span><sup>1</sup>, 
+      <span>Yifan Hu</span><sup>2</sup>, 
+      <span>Yicheng Zhong</span><sup>3</sup>, 
+      <span>Zhisheng Wang</span><sup>1</sup>, 
+      <span>Zhiyong Wu</span><sup>1</sup>
+    </div>
+    <div class="affiliations">
+      <sup>1</sup>Shenzhen International Graduate School, Tsinghua University &nbsp;&nbsp;
+      <sup>2</sup>Inner Mongolia University &nbsp;&nbsp;
+      <sup>3</sup>Tencent
+    </div>
+
+    <div class="links-container">
+      <a class="link-badge" href="https://github.com/thuhcsi/FineEdit" target="_blank">💻 GitHub Repository (FineEdit)</a>
+    </div>
+
     <h2 id="abstract">Abstract</h2>
     <p style="font-size: 1.05rem;">
       Controllable text-to-speech (TTS) has become a key research focus. However, methods based on either reference speech or text descriptions lack flexibility and precise control, and recent joint approaches remain loosely coupled, with speech modeling timbre and text controlling global style. We propose FineCombo-TTS, a unified framework for speech synthesis grounded in reference speech and guided by text descriptions, enabling flexible and precise control over acoustic attributes. Instead of explicit attribute disentanglement, we learn a unified acoustic representation and introduce a Conditional Flow Matching (CFM)-based Speech Variance Predictor to model fine-grained reference-to-target transformations guided by text descriptions. To support relative attribute control, we construct FineEdit, a structured paired dataset that explicitly encodes source-to-target attribute variations. Experiments demonstrate that our approach achieves flexible, precise, and expressive controllable TTS.
     </p>
   
-    <!-- 目录 -->
     <h2 id="contents">Contents</h2>
     <ul class="toc">
       <li><a href="#model-overview">Method</a></li>
       <li><a href="#Joint Control Demos-Pitch Control">Joint Control Demos-Pitch Control</a></li>
       <li><a href="#Joint Control Demos-Emotion Control">Joint Control Demos-Emotion Control</a></li>
       <li><a href="#Joint Control Demos-Timbre Control">Joint Control Demos-Timbre Control</a></li>
-
       <li><a href="#Description-Only Control Demos">Description-Only Control Demos</a></li>
-
-      <!-- <li><a href="#Joint Control Demos with CFG">Joint Control Demos with CFG</a></li> -->
     </ul>
   
-    <!-- 模型概览 -->
     <h2 id="model-overview">Method</h2>
     <p>
-      <!-- 简要描述模型 -->
       FineCombo-TTS is a novel framework that fully integrates reference speech and text descriptions to achieve flexible and precise control in text-to-speech synthesis.
     </p>
     <img src="img/model.png" alt="Method Diagram" style="max-width: 100%; margin-top: 1rem;">
@@ -198,7 +232,6 @@
         </tr>
       </thead>
       <tbody>
-  
         <tr>
           <td>
             <audio controls>
@@ -217,7 +250,6 @@
             </audio>
           </td>
         </tr>
-  
         <tr>
           <td>
             <audio controls>
@@ -236,8 +268,6 @@
             </audio>
           </td>
         </tr>
-  
-        
         <tr>
           <td>
             <audio controls>
@@ -256,7 +286,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             <audio controls>
@@ -275,7 +304,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             <audio controls>
@@ -294,11 +322,9 @@
             </audio>
           </td>
         </tr>
-
       </tbody>
     </table>
   
-
     <h2 id="Joint Control Demos-Emotion Control">Joint Control Demos-Emotion Control</h2>
     <table>
       <thead>
@@ -310,7 +336,6 @@
         </tr>
       </thead>
       <tbody>
-  
         <tr>
           <td>
             <audio controls>
@@ -329,7 +354,6 @@
             </audio>
           </td>
         </tr>
-  
         <tr>
           <td>
             <audio controls>
@@ -338,6 +362,7 @@
           </td>
           <td>
             I'm sure your friends can wait!
+          </td>
           <td>
             Change the style, speak with a happy emotion.
           </td>
@@ -347,8 +372,6 @@
             </audio>
           </td>
         </tr>
-  
-        
         <tr>
           <td>
             <audio controls>
@@ -367,7 +390,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             <audio controls>
@@ -386,7 +408,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             <audio controls>
@@ -405,10 +426,8 @@
             </audio>
           </td>
         </tr>
-
       </tbody>
     </table>
-
 
     <h2 id="Joint Control Demos-Timbre Control">Joint Control Demos-Timbre Control</h2>
     <table>
@@ -421,7 +440,6 @@
         </tr>
       </thead>
       <tbody>
-  
         <tr>
           <td>
             <audio controls>
@@ -440,7 +458,6 @@
             </audio>
           </td>
         </tr>
-  
         <tr>
           <td>
             <audio controls>
@@ -459,8 +476,6 @@
             </audio>
           </td>
         </tr>
-  
-        
         <tr>
           <td>
             <audio controls>
@@ -479,7 +494,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             <audio controls>
@@ -498,7 +512,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             <audio controls>
@@ -517,12 +530,9 @@
             </audio>
           </td>
         </tr>
-
       </tbody>
     </table>
   
-
-
     <h2 id="Description-Only Control Demos">Description-Only Control Demos</h2>
     <table>
       <thead>
@@ -546,7 +556,6 @@
             </audio>
           </td>
         </tr>
-  
         <tr>
           <td>
             At the unexpected outcry in the rear the Raturans halted, and held a hasty council of war.
@@ -560,8 +569,6 @@
             </audio>
           </td>
         </tr>
-  
-        
         <tr>
           <td>
             "Washington ought to send troops and provisions for the forts at once!" replied mr Fulton.
@@ -575,7 +582,6 @@
             </audio>
           </td>
         </tr>
-
         <tr>
           <td>
             When it was fixed on, the boat was launched and the voyage began.
@@ -589,9 +595,7 @@
             </audio>
           </td>
         </tr>
-
         <tr>
-
           <td>
             It is a lovely story that follows, full of marvel, as how should it not be?
           </td>
@@ -604,12 +608,12 @@
             </audio>
           </td>
         </tr>
-
       </tbody>
     </table>
-  
-
-
-
+    
+    <div class="footer">
+      <p>FineCombo-TTS / FineEdit Dataset Project Page. Jointly hosted by Tsinghua University, IMU, and Tencent.</p>
+    </div>
+  </div>
 </body>
 </html>
